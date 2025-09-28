@@ -1,14 +1,20 @@
-name: Java CI/CD Pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: QAProject
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout code
@@ -18,13 +24,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'   # <- added
+          distribution: 'temurin'
 
       - name: Build project
         run: mvn clean install -DskipTests=false
 
-      - name: Run unit tests
+      - name: Run tests
         run: mvn test
-
-      - name: Run REST Assured API tests
-        run: mvn verify
