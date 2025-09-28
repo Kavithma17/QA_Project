@@ -6,12 +6,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: K@v!09171234
           MYSQL_DATABASE: QAProject
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
+          --health-cmd="mysqladmin ping -h localhost -pK@v!09171234"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -25,6 +25,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Wait for MySQL to be ready
+        run: |
+          sudo apt-get install -y mysql-client
+          until mysql -h 127.0.0.1 -P 3306 -u root -pK@v!09171234 -e "SELECT 1;" 2>/dev/null; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
 
       - name: Build project
         run: mvn clean install -DskipTests=false
