@@ -1,58 +1,20 @@
-name: Java CI/CD Pipeline
+- name: Build project
+  run: |
+    mvn clean install -DskipTests=false \
+      -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+      -Dspring.datasource.username=root \
+      -Dspring.datasource.password=K@v!09171234
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+- name: Run unit tests
+  run: |
+    mvn test \
+      -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+      -Dspring.datasource.username=root \
+      -Dspring.datasource.password=K@v!09171234
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: K@v!09171234
-          MYSQL_DATABASE: QAProject
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -pK@v!09171234"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Step 2: Set up Java
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # Step 3: Build project with Maven (override DB settings)
-      - name: Build project
-        run: mvn clean install -DskipTests=false \
-          -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
-          -Dspring.datasource.username=root \
-          -Dspring.datasource.password='K@v!09171234'
-
-      # Step 4: Run unit tests (override DB settings)
-      - name: Run unit tests
-        run: mvn test \
-          -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
-          -Dspring.datasource.username=root \
-          -Dspring.datasource.password='K@v!09171234'
-
-      # Step 5: Run REST Assured API tests (override DB settings)
-      - name: Run API tests
-        run: mvn verify \
-          -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
-          -Dspring.datasource.username=root \
-          -Dspring.datasource.password='K@v!09171234'
+- name: Run REST Assured API tests
+  run: |
+    mvn verify \
+      -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+      -Dspring.datasource.username=root \
+      -Dspring.datasource.password=K@v!09171234
