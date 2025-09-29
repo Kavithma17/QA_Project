@@ -1,12 +1,10 @@
-name: CI/CD Pipeline
+name: Java CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-and-test:
@@ -36,8 +34,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build project
-        run: mvn clean install -DskipTests=false
+      - name: Build project with Maven
+        run: |
+          mvn clean install -DskipTests=false \
+            -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+            -Dspring.datasource.username=root \
+            -Dspring.datasource.password=root
 
-      - name: Run tests
-        run: mvn test
+      - name: Run unit tests
+        run: |
+          mvn test \
+            -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+            -Dspring.datasource.username=root \
+            -Dspring.datasource.password=root
+
+      - name: Run REST Assured API tests
+        run: |
+          mvn verify \
+            -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/QAProject?useSSL=false&allowPublicKeyRetrieval=true \
+            -Dspring.datasource.username=root \
+            -Dspring.datasource.password=root
